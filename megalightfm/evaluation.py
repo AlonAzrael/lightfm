@@ -5,7 +5,7 @@ LightFM model.
 
 import numpy as np
 
-from ._lightfm_fast import (CSRMatrix,
+from ._mega_lightfm_fast import (CSRMatrix,
                             calculate_auc_from_rank)
 
 

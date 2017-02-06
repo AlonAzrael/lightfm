@@ -4,7 +4,7 @@ import numpy as np
 
 import scipy.sparse as sp
 
-from lightfm.datasets import _common
+from megalightfm.datasets import _common
 
 
 def fetch_stackexchange(dataset, test_set_fraction=0.2,

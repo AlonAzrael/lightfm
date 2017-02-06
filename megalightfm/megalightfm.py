@@ -4,18 +4,20 @@ import numpy as np
 
 import scipy.sparse as sp
 
-from ._lightfm_fast import (CSRMatrix, FastLightFM,
+from collections import deque
+
+from ._mega_lightfm_fast import (CSRMatrix, FastLightFM,
                             fit_bpr, fit_logistic, fit_warp,
                             fit_warp_kos, predict_lightfm, predict_ranks)
 
 
-__all__ = ['LightFM']
+__all__ = ['MegaLightFM']
 
 
 CYTHON_DTYPE = np.float32
 
 
-class LightFM(object):
+class MegaLightFM(object):
     """
     A hybrid recommender model.
 
@@ -113,12 +115,12 @@ class LightFM(object):
            arXiv preprint arXiv:1212.5701 (2012).
     """
 
-    def __init__(self, no_components=10, k=5, n=10,
+    def __init__(self, no_components=50, k=5, n=10,
                  learning_schedule='adagrad',
-                 loss='logistic',
+                 loss=None,
                  learning_rate=0.05, rho=0.95, epsilon=1e-6,
                  item_alpha=0.0, user_alpha=0.0, max_sampled=10,
-                 random_state=None):
+                 random_state=None, skip_loss_flag=0):
 
         assert item_alpha >= 0.0
         assert user_alpha >= 0.0
@@ -128,7 +130,7 @@ class LightFM(object):
         assert 0 < rho < 1
         assert epsilon >= 0
         assert learning_schedule in ('adagrad', 'adadelta')
-        assert loss in ('logistic', 'warp', 'bpr', 'warp-kos')
+        assert loss in ('logistic', 'warp', 'bpr', 'warp-kos', None)
 
         if max_sampled < 1:
             raise ValueError('max_sampled must be a positive integer')
@@ -155,6 +157,11 @@ class LightFM(object):
             self.random_state = random_state
         else:
             self.random_state = np.random.RandomState(random_state)
+
+        self.skip_loss_flag = skip_loss_flag
+
+        self.cur_epoch_loss = 10
+        # self. = deque(maxlen=3) ## maxlen equals 
 
         self._reset_state()
 
@@ -318,7 +325,7 @@ class LightFM(object):
     def fit(self, interactions,
             user_features=None, item_features=None,
             sample_weight=None,
-            epochs=1, num_threads=1, verbose=False):
+            epochs=8, num_threads=1, verbose=False, regularization_flag=1):
         """
         Fit the model.
 
@@ -367,12 +374,13 @@ class LightFM(object):
                                 sample_weight=sample_weight,
                                 epochs=epochs,
                                 num_threads=num_threads,
-                                verbose=verbose)
+                                verbose=verbose, 
+                                regularization_flag=regularization_flag)
 
     def fit_partial(self, interactions,
                     user_features=None, item_features=None,
                     sample_weight=None,
-                    epochs=1, num_threads=1, verbose=False):
+                    epochs=1, num_threads=1, verbose=False, regularization_flag=1):
         """
         Fit the model.
 
@@ -463,12 +471,12 @@ class LightFM(object):
                             interactions,
                             sample_weight_data,
                             num_threads,
-                            self.loss)
+                            self.loss, 
+                            regularization_flag=regularization_flag)
 
         return self
 
-    def _run_epoch(self, item_features, user_features, interactions,
-                   sample_weight, num_threads, loss):
+    def _run_epoch(self, item_features, user_features, interactions, sample_weight, num_threads, loss, regularization_flag=1):
         """
         Run an individual epoch.
         """
@@ -530,7 +538,7 @@ class LightFM(object):
                          num_threads,
                          self.random_state)
         else:
-            fit_logistic(CSRMatrix(item_features),
+            total_loss = fit_logistic(CSRMatrix(item_features),
                          CSRMatrix(user_features),
                          interactions.row,
                          interactions.col,
@@ -541,7 +549,11 @@ class LightFM(object):
                          self.learning_rate,
                          self.item_alpha,
                          self.user_alpha,
-                         num_threads)
+                         num_threads, 
+                         regularization_flag=1, 
+                         skip_loss_flag=self.skip_loss_flag)
+
+            self.cur_epoch_loss = total_loss
 
     def predict(self, user_ids, item_ids, item_features=None, user_features=None, num_threads=1):
         """

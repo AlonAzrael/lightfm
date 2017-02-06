@@ -1,9 +1,10 @@
 try:
     # Import OpenMP-enabled extension
-    from ._lightfm_fast_openmp import *  # NOQA
-    from ._lightfm_fast_openmp import __test_in_positives  # NOQA
-except ImportError:
+    from ._mega_lightfm_fast import *  # NOQA
+    from ._mega_lightfm_fast import __test_in_positives  # NOQA
+except ImportError as e:
     # Fall back on OpenMP-less extension
+    raise e
     import warnings
 
     warnings.warn('LightFM was compiled without OpenMP support. '

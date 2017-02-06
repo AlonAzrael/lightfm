@@ -22,11 +22,11 @@ def define_extensions(use_openmp):
     if not use_openmp:
         print('Compiling without OpenMP support.')
         return [Extension("lightfm._lightfm_fast_no_openmp",
-          ['lightfm/_lightfm_fast_no_openmp.c'],
+                          ['lightfm/_lightfm_fast_no_openmp.c'],
                           extra_compile_args=compile_args)]
     else:
-        return [Extension("megalightfm._mega_lightfm_fast",
-          ['megalightfm/_mega_lightfm_fast.c'],
+        return [Extension("lightfm._lightfm_fast_openmp",
+                          ['lightfm/_lightfm_fast_openmp.c'],
                           extra_link_args=["-fopenmp"],
                           extra_compile_args=compile_args + ['-fopenmp'])]
 
@@ -45,7 +45,6 @@ class Cythonize(Command):
         pass
 
     def generate_pyx(self):
-        return
 
         openmp_import = textwrap.dedent("""
              from cython.parallel import parallel, prange
@@ -73,23 +72,17 @@ class Cythonize(Command):
                                    '_lightfm_fast_{}.pyx'.format(variant)), 'w') as fl:
                 fl.write(template.format(**template_params))
 
-    @classmethod
     def run(self):
 
         from Cython.Build import cythonize
 
-        # self.generate_pyx()
-        print "FUCK ======================="
-        compile_args = ['-ffast-math', '-march=native']
+        self.generate_pyx()
 
-        return cythonize([
-          # Extension("lightfm._lightfm_fast_no_openmp", 
-          #   ['lightfm/_lightfm_fast_no_openmp.pyx']),
-          Extension("megalightfm._mega_lightfm_fast",
-            ['megalightfm/_mega_lightfm_fast.pyx'],
-            extra_link_args=['-fopenmp'], 
-            extra_compile_args=compile_args + ['-fopenmp']),
-        ])
+        cythonize([Extension("lightfm._lightfm_fast_no_openmp",
+                             ['lightfm/_lightfm_fast_no_openmp.pyx']),
+                   Extension("lightfm._lightfm_fast_openmp",
+                             ['lightfm/_lightfm_fast_openmp.pyx'],
+                             extra_link_args=['-fopenmp'])])
 
 
 class Clean(Command):
@@ -134,17 +127,17 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-use_openmp = not (sys.platform.startswith('_darwin') or sys.platform.startswith('win'))
+use_openmp = not (sys.platform.startswith('darwin') or sys.platform.startswith('win'))
 
 
 setup(
-    name='megalightfm',
+    name='lightfm',
     version='1.11',
     description='LightFM recommendation model',
     url='https://github.com/lyst/lightfm',
     download_url='https://github.com/lyst/lightfm/tarball/1.11',
-    packages=['megalightfm',
-              'megalightfm.datasets'],
+    packages=['lightfm',
+              'lightfm.datasets'],
     package_data={'': ['*.c']},
     install_requires=['numpy', 'scipy>=0.17.0', 'requests'],
     tests_require=['pytest', 'requests', 'scikit-learn'],
@@ -155,6 +148,5 @@ setup(
     classifiers=['Development Status :: 3 - Alpha',
                  'License :: OSI Approved :: MIT License',
                  'Topic :: Scientific/Engineering :: Artificial Intelligence'],
-    ext_modules=Cythonize.run()
-    # ext_modules=define_extensions(use_openmp)
+    ext_modules=define_extensions(use_openmp)
 )

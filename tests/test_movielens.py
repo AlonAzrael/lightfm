@@ -9,9 +9,10 @@ from sklearn.metrics import roc_auc_score
 from sklearn.grid_search import RandomizedSearchCV
 from sklearn.cross_validation import KFold
 
-from lightfm import LightFM
-from lightfm.datasets import fetch_movielens
-from lightfm.evaluation import auc_score, precision_at_k
+from megalightfm import MegaLightFM
+# print "MegaLightFM:", MegaLightFM
+from megalightfm.datasets import fetch_movielens
+# from MegaLightFM.evaluation import auc_score, precision_at_k
 
 
 SEED = 10
@@ -57,6 +58,7 @@ def _binarize(dataset):
 
 
 movielens = fetch_movielens()
+exit(0)
 train, test = _binarize(movielens['train']), _binarize(movielens['test'])
 
 
@@ -68,7 +70,7 @@ train, test = _binarize(movielens['train']), _binarize(movielens['test'])
 
 def test_movielens_accuracy():
 
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
     model.fit_partial(train,
                       epochs=10)
 
@@ -83,7 +85,7 @@ def test_movielens_accuracy():
 
 def test_logistic_precision():
 
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
     model.fit_partial(train,
                       epochs=10)
 
@@ -103,7 +105,7 @@ def test_logistic_precision():
 
 def test_bpr_precision():
 
-    model = LightFM(learning_rate=0.05,
+    model = MegaLightFM(learning_rate=0.05,
                     loss='bpr',
                     random_state=SEED)
 
@@ -126,7 +128,7 @@ def test_bpr_precision():
 
 def test_bpr_precision_multithreaded():
 
-    model = LightFM(learning_rate=0.05,
+    model = MegaLightFM(learning_rate=0.05,
                     loss='bpr',
                     random_state=SEED)
 
@@ -150,7 +152,7 @@ def test_bpr_precision_multithreaded():
 
 def test_warp_precision():
 
-    model = LightFM(learning_rate=0.05,
+    model = MegaLightFM(learning_rate=0.05,
                     loss='warp',
                     random_state=SEED)
 
@@ -173,7 +175,7 @@ def test_warp_precision():
 
 def test_warp_precision_high_interaction_values():
 
-    model = LightFM(learning_rate=0.05,
+    model = MegaLightFM(learning_rate=0.05,
                     loss='warp',
                     random_state=SEED)
 
@@ -199,7 +201,7 @@ def test_warp_precision_high_interaction_values():
 
 def test_bpr_precision_high_interaction_values():
 
-    model = LightFM(learning_rate=0.05,
+    model = MegaLightFM(learning_rate=0.05,
                     loss='bpr',
                     random_state=SEED)
 
@@ -225,7 +227,7 @@ def test_bpr_precision_high_interaction_values():
 
 def test_warp_precision_multithreaded():
 
-    model = LightFM(learning_rate=0.05,
+    model = MegaLightFM(learning_rate=0.05,
                     loss='warp',
                     random_state=SEED)
 
@@ -249,7 +251,7 @@ def test_warp_precision_multithreaded():
 
 def test_warp_precision_adadelta():
 
-    model = LightFM(learning_schedule='adadelta',
+    model = MegaLightFM(learning_schedule='adadelta',
                     rho=0.95,
                     epsilon=0.000001,
                     loss='warp',
@@ -275,7 +277,7 @@ def test_warp_precision_adadelta():
 
 def test_warp_precision_adadelta_multithreaded():
 
-    model = LightFM(learning_schedule='adadelta',
+    model = MegaLightFM(learning_schedule='adadelta',
                     rho=0.95,
                     epsilon=0.000001,
                     loss='warp',
@@ -301,7 +303,7 @@ def test_warp_precision_adadelta_multithreaded():
 
 def test_warp_precision_max_sampled():
 
-    model = LightFM(learning_rate=0.05,
+    model = MegaLightFM(learning_rate=0.05,
                     max_sampled=1,
                     loss='warp',
                     random_state=SEED)
@@ -333,7 +335,7 @@ def test_warp_kos_precision():
     training = training.tocsr()
     training.eliminate_zeros()
 
-    model = LightFM(learning_rate=0.05, k=5,
+    model = MegaLightFM(learning_rate=0.05, k=5,
                     loss='warp-kos',
                     random_state=SEED)
 
@@ -360,7 +362,7 @@ def test_warp_stability():
 
     for lrate in learning_rates:
 
-        model = LightFM(learning_rate=lrate,
+        model = MegaLightFM(learning_rate=lrate,
                         loss='warp',
                         random_state=SEED)
         model.fit_partial(train,
@@ -377,7 +379,7 @@ def test_movielens_genre_accuracy():
 
     assert item_features.shape[1] < item_features.shape[0]
 
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
     model.fit_partial(train,
                       item_features=item_features,
                       epochs=10)
@@ -403,7 +405,7 @@ def test_movielens_both_accuracy():
     item_features = fetch_movielens(indicator_features=True,
                                     genre_features=True)['item_features']
 
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
     model.fit_partial(train,
                       item_features=item_features,
                       epochs=15)
@@ -421,7 +423,7 @@ def test_movielens_both_accuracy():
 
 def test_movielens_accuracy_fit():
 
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
     model.fit(train,
               epochs=10)
 
@@ -436,7 +438,7 @@ def test_movielens_accuracy_fit():
 
 def test_movielens_accuracy_pickle():
 
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
     model.fit(train,
               epochs=10)
 
@@ -453,7 +455,7 @@ def test_movielens_accuracy_pickle():
 
 def test_movielens_accuracy_resume():
 
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
 
     for _ in range(10):
         model.fit_partial(train,
@@ -481,7 +483,7 @@ def test_movielens_accuracy_sample_weights():
     for (loss, exp_score) in (('logistic', 0.74),
                               ('bpr', 0.84),
                               ('warp', 0.89)):
-        model = LightFM(loss=loss, random_state=SEED)
+        model = MegaLightFM(loss=loss, random_state=SEED)
         model.learning_rate * 1.0 / scale
 
         model.fit_partial(train,
@@ -514,7 +516,7 @@ def test_movielens_accuracy_sample_weights_grad_accumulation():
     odd_idx = np.arange(train.shape[0]) % 2 != 0
 
     for loss in ('logistic', 'bpr', 'warp'):
-        model = LightFM(loss=loss, random_state=SEED)
+        model = MegaLightFM(loss=loss, random_state=SEED)
 
         model.fit_partial(train,
                           sample_weight=weights,
@@ -529,7 +531,7 @@ def test_movielens_accuracy_sample_weights_grad_accumulation():
 
 def test_state_reset():
 
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
 
     model.fit(train,
               epochs=1)
@@ -543,7 +545,7 @@ def test_state_reset():
 
 def test_user_supplied_features_accuracy():
 
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
     model.fit_partial(train,
                       user_features=train_user_features,
                       item_features=train_item_features,
@@ -567,7 +569,7 @@ def test_zeros_negative_accuracy():
     # Should get the same accuracy when zeros are used to
     # denote negative interactions
     train.data[train.data == -1] = 0
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
     model.fit_partial(train,
                       epochs=10)
 
@@ -590,7 +592,7 @@ def test_zero_weights_accuracy():
                             dtype=np.float32)
 
     for loss in ('logistic', 'bpr', 'warp'):
-        model = LightFM(loss=loss, random_state=SEED)
+        model = MegaLightFM(loss=loss, random_state=SEED)
         model.fit_partial(train,
                           sample_weight=weights,
                           epochs=10)
@@ -607,7 +609,7 @@ def test_zero_weights_accuracy():
 def test_hogwild_accuracy():
 
     # Should get comparable accuracy with 2 threads
-    model = LightFM(random_state=SEED)
+    model = MegaLightFM(random_state=SEED)
     model.fit_partial(train,
                       epochs=10,
                       num_threads=2)
@@ -626,7 +628,7 @@ def test_hogwild_accuracy():
 def test_movielens_excessive_regularization():
 
     # Should perform poorly with high regularization
-    model = LightFM(no_components=10,
+    model = MegaLightFM(no_components=10,
                     item_alpha=1.0,
                     user_alpha=1.0,
                     random_state=SEED)
@@ -645,7 +647,7 @@ def test_movielens_excessive_regularization():
 def test_overfitting():
 
     # Let's massivly overfit
-    model = LightFM(no_components=50, random_state=SEED)
+    model = MegaLightFM(no_components=50, random_state=SEED)
     model.fit_partial(train,
                       epochs=30)
 
@@ -663,7 +665,7 @@ def test_overfitting():
 def test_regularization():
 
     # Let's regularize
-    model = LightFM(no_components=50,
+    model = MegaLightFM(no_components=50,
                     item_alpha=0.0001,
                     user_alpha=0.0001,
                     random_state=SEED)
@@ -681,7 +683,7 @@ def test_regularization():
 
 def test_training_schedules():
 
-    model = LightFM(no_components=10,
+    model = MegaLightFM(no_components=10,
                     learning_schedule='adagrad',
                     random_state=SEED)
     model.fit_partial(train,
@@ -710,7 +712,7 @@ def test_training_schedules():
     assert (model.user_bias_gradients > 1).any()
     assert (model.user_bias_momentum == 0).all()
 
-    model = LightFM(no_components=10,
+    model = MegaLightFM(no_components=10,
                     learning_schedule='adadelta',
                     random_state=SEED)
     model.fit_partial(train,
@@ -742,14 +744,14 @@ def test_training_schedules():
 
 def test_random_state_fixing():
 
-    model = LightFM(learning_rate=0.05,
+    model = MegaLightFM(learning_rate=0.05,
                     loss='warp',
                     random_state=SEED)
 
     model.fit_partial(train,
                       epochs=2)
 
-    model_2 = LightFM(learning_rate=0.05,
+    model_2 = MegaLightFM(learning_rate=0.05,
                       loss='warp',
                       random_state=SEED)
 
@@ -765,7 +767,7 @@ def test_random_state_advanced():
     # to seed rand_r in Cython advances
     # the random generator state.
 
-    model = LightFM(learning_rate=0.05,
+    model = MegaLightFM(learning_rate=0.05,
                     loss='warp',
                     random_state=SEED)
 
@@ -782,7 +784,7 @@ def test_random_state_advanced():
 
 def test_sklearn_cv():
 
-    model = LightFM(loss='warp', random_state=42)
+    model = MegaLightFM(loss='warp', random_state=42)
 
     # Set distributions for hyperparameters
     randint = stats.randint(low=1, high=65)

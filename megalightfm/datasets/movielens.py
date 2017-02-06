@@ -5,7 +5,7 @@ import numpy as np
 
 import scipy.sparse as sp
 
-from lightfm.datasets import _common
+from megalightfm.datasets import _common
 
 
 def _read_raw_data(path):

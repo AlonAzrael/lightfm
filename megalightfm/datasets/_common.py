@@ -6,7 +6,7 @@ import requests
 def get_data_dir():
 
     return os.path.join(os.path.expanduser('~'),
-                        'lightfm_data')
+                        'megalightfm_data')
 
 
 def create_data_dir(path):
